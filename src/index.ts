@@ -41,8 +41,8 @@ async function main() {
     if (
         checkName === currentJob &&
         ref === currentSha &&
-        repo === currentRepoOwner &&
-        owner === currentRepoName
+        repo === currentRepoName &&
+        owner === currentRepoOwner
     ) {
         throw new Error("can't wait on self");
     }

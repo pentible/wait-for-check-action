@@ -28838,8 +28838,8 @@ async function main() {
     const currentRepoName = currentRepository?.split("/")[1];
     if (checkName === currentJob &&
         ref === currentSha &&
-        repo === currentRepoOwner &&
-        owner === currentRepoName) {
+        repo === currentRepoName &&
+        owner === currentRepoOwner) {
         throw new Error("can't wait on self");
     }
     const rawInterval = (0,_actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput)("interval", { required: true });
