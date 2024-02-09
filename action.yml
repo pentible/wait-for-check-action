@@ -9,13 +9,53 @@ runs:
   using: node20
   main: dist/index.js
 
-# TODO: Define inputs
 inputs:
   check-name:
-    description: Your input description here
+    description:
+      Name of the check (ie. if check comes from a github action, it will be the
+      job name)
     required: true
+  ref:
+    description:
+      Find check run for this commit ref. The ref can be a SHA, branch name, or
+      a tag name (defaults to current sha)
+    required: true
+    default: ${{ github.sha }}
+  owner:
+    description:
+      Owner of the repo to find the checks on (when overridden, will need to
+      specify the github-token with a PAT that has access to read checks on that
+      repo)
+    required: true
+    default: ${{ github.repository_owner }}
+  repo:
+    description:
+      Repo name to find the checks on (when overridden, will need to specify the
+      github-token with a PAT that has access to read checks on that repo)
+    required: true
+    default: ${{ github.event.repository.name }}
+  interval:
+    description: Interval (in seconds) to check the run status
+    required: true
+    default: "5"
+  expected-conclusions:
+    description:
+      Comma separated list of expected conclusions for the run. If the
+      conclusion is not one of these values, the action will fail. This can be
+      one of the check conclusions listed in the docs, or "any" to disable
+      conclusion checking entirely
+      https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28
+    required: true
+    default: success,skipped
+  github-token:
+    description:
+      The GitHub token used to authenticate with the GitHub API. This is
+      required when downloading artifacts from a different repository.
+    required: true
+    default: ${{ github.token }}
 
-# TODO: Define outputs
 outputs:
-  time:
-    description: Your output description here
+  conclusion:
+    description: The conclusion of the run
+  run:
+    description: The entire completed run response (json encoded)

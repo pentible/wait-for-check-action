@@ -8,4 +8,7 @@ module.exports = {
         "@pentible/eslint-config-node",
         "@pentible/eslint-config-prettier",
     ],
+    rules: {
+        "no-constant-condition": ["error", { checkLoops: false }],
+    },
 };

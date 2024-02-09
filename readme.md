@@ -4,6 +4,9 @@
 
 <!-- prettier-ignore -->
 ```yaml
+permissions:
+  contents: read # for actions/checkout
+  checks: read # for pentible/wait-for-check-action
 steps:
   - name: Wait for CI
     id: wait-ci

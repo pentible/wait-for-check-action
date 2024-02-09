@@ -8,6 +8,7 @@ on:
       - main
 permissions:
   contents: read # for actions/checkout
+  checks: read # for pentible/wait-for-check-action
 jobs:
   test-action:
     name: Test Action
