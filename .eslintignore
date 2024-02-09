@@ -1,4 +1,8 @@
-lib/
-dist/
 node_modules/
-coverage/
+/.husky/_/
+*.tgz
+*.tsbuildinfo
+.DS_Store
+
+# eslint
+/dist/

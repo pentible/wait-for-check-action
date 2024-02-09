@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+set -e
+
+declare script_dir
+script_dir="$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")"
+declare repo_dir
+repo_dir="$(dirname "$script_dir")"
+
+# load mise environment (in case we're run from outside the project directory)
+eval "$(cd "$repo_dir" && mise hook-env 2> /dev/null)"
+
+dev::usage() {
+    echo 'usage: dev <command>'
+    echo '       dev initial setup    # install app and dev env dependencies'
+    echo '       dev reset            # deletes temp files and sets project back up'
+    echo '       dev start            # run dev server'
+    echo '       dev lint             # run linters'
+    echo '       dev lint fix         # fix auto-fixable linter errors'
+    echo '       dev lint dist        # lint dist in sync with source'
+    exit 1
+}
+
+dev::initial::setup() {
+    cd "$repo_dir"
+
+    echo '==> install brew'
+    if ! type 'brew' > /dev/null 2>&1; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+
+    echo '==> install dependencies'
+    brew install \
+        mise \
+        shellcheck
+
+    echo '==> allow mise to load project directory'
+    mise trust --all
+
+    echo '==> dev reset'
+    dev::reset
+}
+
+dev::reset() {
+    cd "$repo_dir"
+
+    echo '==> delete git ignored files'
+    git clean -ffdX
+
+    echo '==> reload mise'
+    mise install
+
+    echo '==> install dependencies'
+    npm install
+}
+
+dev::start() {
+    npm run dev
+}
+
+dev::lint() {
+    check-package-lock
+    shellcheck-all
+    tsc
+    eslint .
+    prettier --log-level warn --check .
+    dev::lint::dist
+}
+
+dev::lint::fix() {
+    eslint --fix .
+    prettier --log-level warn --write .
+    dev::lint::dist
+}
+
+dev::lint::dist() {
+    npm run --silent build -- --quiet
+
+    if [[ "$(git diff --ignore-space-at-eol --text dist/ | wc -l)" -gt "0" ]]; then
+        echo "Detected uncommitted changes after build. See status below:"
+        git --no-pager diff --ignore-space-at-eol --text dist/
+        exit 1
+    fi
+}
+
+case "$*" in
+    'initial setup') dev::initial::setup ;;
+    reset) dev::reset ;;
+    start) dev::start ;;
+    lint) dev::lint ;;
+    'lint fix') dev::lint::fix ;;
+    'lint dist') dev::lint::dist ;;
+    *) dev::usage ;;
+esac

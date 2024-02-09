@@ -1,0 +1,7 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+npx check-package-lock
+npx tsc
+./bin/dev lint dist
+npx lint-staged
