@@ -18,6 +18,7 @@ dev::usage() {
     echo '       dev lint             # run linters'
     echo '       dev lint fix         # fix auto-fixable linter errors'
     echo '       dev lint dist        # lint dist in sync with source'
+    echo '       dev release          # publish the next version'
     exit 1
 }
 
@@ -83,6 +84,49 @@ dev::lint::dist() {
     fi
 }
 
+dev::release() {
+    # TODO: update workflow
+    # Terminal colors
+    OFF='\033[0m'
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    BLUE='\033[0;34m'
+
+    # Get the latest release tag
+    latest_tag=$(git describe --tags "$(git rev-list --tags --max-count=1)") || true
+
+    if [[ -z "$latest_tag" ]]; then
+        # There are no existing release tags
+        echo -e "No tags found (yet) - Continue to create and push your first tag"
+        latest_tag="[unknown]"
+    fi
+
+    # Display the latest release tag
+    echo -e "The latest release tag is: ${BLUE}${latest_tag}${OFF}"
+
+    # Prompt the user for the new release tag
+    read -r -p 'Enter a new release tag (vX.X.X format): ' new_tag
+
+    # Validate the new release tag
+    tag_regex='v[0-9]+\.[0-9]+\.[0-9]+$'
+    if echo "$new_tag" | grep -q -E "$tag_regex"; then
+        echo -e "Tag: ${BLUE}$new_tag${OFF} is valid"
+    else
+        # Release tag is not `vX.X.X` format
+        echo -e "Tag: ${BLUE}$new_tag${OFF} is ${RED}not valid${OFF} (must be in vX.X.X format)"
+        exit 1
+    fi
+
+    # Tag the new release
+    git tag -a "$new_tag" -m "$new_tag Release"
+    echo -e "${GREEN}Tagged: $new_tag${OFF}"
+
+    # Push the new tag to the remote
+    git push --tags
+    echo -e "${GREEN}Release tag pushed to remote${OFF}"
+    echo -e "${GREEN}Done!${OFF}"
+}
+
 case "$*" in
     'initial setup') dev::initial::setup ;;
     reset) dev::reset ;;
@@ -90,5 +134,6 @@ case "$*" in
     lint) dev::lint ;;
     'lint fix') dev::lint::fix ;;
     'lint dist') dev::lint::dist ;;
+    release) dev::release ;;
     *) dev::usage ;;
 esac
