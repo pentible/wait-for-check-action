@@ -14,6 +14,13 @@ steps:
     with:
       # ie. if check comes from a github action, it will be the job name
       check-name: ci
+      # additional options & their defaults
+      # ref: ${{ github.sha }}
+      # owner: ${{ github.repository_owner }}
+      # repo: ${{ github.event.repository.name }}
+      # interval: 5
+      # expected-conclusions: success,skipped
+      # github-token: ${{ github.token }}
   - name: Print Conclusion
     run: echo "${{ steps.wait-ci.outputs.conclusion }}"
 ```
