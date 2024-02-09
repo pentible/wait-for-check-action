@@ -10,7 +10,7 @@ permissions:
 steps:
   - name: Wait for CI
     id: wait-ci
-    uses: pentible/wait-for-check-action@v1
+    uses: pentible/wait-for-check-action@v1.0.1
     with:
       # ie. if check comes from a github action, it will be the job name
       check-name: ci
